@@ -1,0 +1,26 @@
+{
+    "name": "j4nr6n/adif",
+    "description": "Read and Write ADIF formatted strings/files",
+    "license": "MIT",
+    "keywords": [],
+    "homepage": "https://github.com/j4nr6n/adif",
+    "autoload": {
+        "psr-4": {
+            "j4nr6n\\ADIF\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "j4nr6n\\ADIF\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "phpunit/phpunit": "^9.5",
+        "squizlabs/php_codesniffer": "^3.6",
+        "vimeo/psalm": "^4.14"
+    }
+}
