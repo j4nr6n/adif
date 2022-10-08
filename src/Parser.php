@@ -90,13 +90,13 @@ class Parser
                     case ':':
                         if ($flag === ParserFlag::Tag) {
                             $flag = ParserFlag::ValueLength;
+                        } elseif ($flag === ParserFlag::ValueLength) {
+                            $flag = ParserFlag::DataType;
                         }
                         $delimiter = true;
                         break;
                     case '>':
-                        if ($flag === ParserFlag::ValueLength) {
-                            $flag = ParserFlag::Value;
-                        }
+                        $flag = ParserFlag::Value;
                         $delimiter = true;
                         break;
                     default:
@@ -109,18 +109,34 @@ class Parser
                             $tag .= $ch;
                             break;
                         case ParserFlag::ValueLength:
-                            // Don't use the value's length as defined by the spec because of emoji
+                            /**
+                             * Don't use the value's length as defined by the spec.
+                             * Due to some ambiguity in the value length definition, there
+                             * are inconsistencies between implementations. Some count bytes,
+                             * some count code-points, and others count grapheme clusters.
+                             *
+                             * Without knowing what to count. We instead use regular expressions
+                             * to find the next tag in the record. We use that position, or the
+                             * position of last character of the string to get the number of
+                             * grapheme clusters.
+                             */
                             break;
                         case ParserFlag::Value:
-                            // Calculate the difference between the current offset and the next `<` if there is one.
+                            // Calculate the difference between the current offset and the next tag if there is one.
                             // Otherwise, the end of the record (`<EOR>` was removed earlier).
                             $valueStartIndex = $i;
-                            $valueEndIndex = grapheme_strpos($record, '<', $valueStartIndex);
-                            if ($valueEndIndex === false) {
-                                $valueEndIndex = grapheme_strlen($record);
-                            }
-                            $valueLength = (int) $valueEndIndex - $valueStartIndex;
 
+                            // <key:value_length:optional_data_type>
+                            preg_match(
+                                '/<\w+(?::\d+)(?::\w+)?>/',
+                                $record,
+                                $matches,
+                                PREG_OFFSET_CAPTURE,
+                                $valueStartIndex
+                            );
+
+                            $valueEndIndex = $matches[0][1] ?? grapheme_strlen($record);
+                            $valueLength = (int) $valueEndIndex - $valueStartIndex;
                             $value = trim(grapheme_substr($record, $valueStartIndex, $valueLength));
                             $datum[mb_strtoupper($tag)] = mb_convert_encoding($value, 'UTF-8');
                             $i += $valueLength - 1;
