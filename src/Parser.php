@@ -77,8 +77,8 @@ class Parser
             $flag = $tag = '';
             $i = 0;
 
-            while ($i < grapheme_strlen($record)) {
-                $ch = grapheme_substr($record, $i, 1);
+            while ($i < mb_strlen($record, '8bit')) {
+                $ch = mb_substr($record, $i, 1, '8bit');
                 $delimiter = false;
 
                 switch ($ch) {
@@ -110,15 +110,15 @@ class Parser
                             break;
                         case ParserFlag::ValueLength:
                             /**
-                             * Don't use the value's length as defined by the spec.
-                             * Due to some ambiguity in the value length definition, there
-                             * are inconsistencies between implementations. Some count bytes,
-                             * some count code-points, and others count grapheme clusters.
+                             * Don't use the value's length as defined by the spec. Due to some
+                             * ambiguity in the value length definition, there are inconsistencies
+                             * between implementations. Some count bytes, some count code-points,
+                             * and others count grapheme clusters.
                              *
-                             * Without knowing what to count. We instead use regular expressions
+                             * Without knowing what to count. We instead use a regular expression
                              * to find the next tag in the record. We use that position, or the
-                             * position of last character of the string to get the number of
-                             * grapheme clusters.
+                             * position of last character of the string if there are no remaining
+                             * tags.
                              */
                             break;
                         case ParserFlag::Value:
@@ -128,16 +128,16 @@ class Parser
 
                             // <key:value_length:optional_data_type>
                             preg_match(
-                                '/<\w+(?::\d+)(?::\w+)?>/',
+                                '/<\w+:\d+(?::\w+)?>/',
                                 $record,
                                 $matches,
                                 PREG_OFFSET_CAPTURE,
                                 $valueStartIndex
                             );
 
-                            $valueEndIndex = $matches[0][1] ?? grapheme_strlen($record);
-                            $valueLength = (int) $valueEndIndex - $valueStartIndex;
-                            $value = trim(grapheme_substr($record, $valueStartIndex, $valueLength));
+                            $valueEndIndex = $matches[0][1] ?? mb_strlen($record, '8bit');
+                            $valueLength = $valueEndIndex - $valueStartIndex;
+                            $value = trim(mb_substr($record, $valueStartIndex, $valueLength, '8bit'));
                             $datum[mb_strtoupper($tag)] = mb_convert_encoding($value, 'UTF-8');
                             $i += $valueLength - 1;
                             break;

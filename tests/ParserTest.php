@@ -39,10 +39,11 @@ class ParserTest extends TestCase
     public function getAdifStrings(): array
     {
         return [
-            [1, '<QSO_DATE:8:D>19690101<CALL:3>FOO<COMMENT:1>🐧<EOR>'],
-            [5, '<QSO_DATE:8:D>19690101<CALL:3>FOO<COMMENT:5>BAR 🐧<EOR>'],
-            [2, '<QSO_DATE:8:D>19690101<CALL:3>FOO<COMMENT:2>🐧<<EOR>'],
-            [11, '<QSO_DATE:8:D>19690101<CALL:3>FOO<COMMENT:11>BAR 🐧<test><EOR>'],
+            [1, '<COMMENT:1>🐧<EOR>'],
+            [5, '<COMMENT:5>BAR 🐧<EOR>'],
+            [2, '<COMMENT:2>🐧<<EOR>'],
+            [11, '<COMMENT:11>BAR 🐧<test><EOR>'],
+            [1, '<comment:1>👌🏿<test:3>foo<EOR>'],
         ];
     }
 }
