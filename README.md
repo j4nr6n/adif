@@ -17,7 +17,7 @@ Read
 ```php
 use j4nr6n/ADIF/Parser;
 
-$data = (new Parser())->parse('example.adif'); // Or a string of ADIF encoded data
+$data = (new Parser())->parse($adifEncodedData);
 ```
 
 Write
@@ -30,8 +30,7 @@ $data = [
     // ...
 ];
 
-(new Writer())->write('./example.adif', $data);
+$adifEncodedData = (new Writer())->write($data);
 
-// Program ID and version can be passed to the constructor
-// (new Writer('Example', '0.1.0'))->write('./example.adif', $data);
+// (new Writer('MyApp', '1.0'))->write($data);
 ```

@@ -14,12 +14,8 @@ class WriterTest extends TestCase
 
     public function testWriterWrites(): void
     {
-        $tmpFile = tmpfile();
+        $outputContent = (new Writer())->write(self::ADIF_DATA);
 
-        (new Writer())->write(stream_get_meta_data($tmpFile)['uri'], self::ADIF_DATA);
-
-        $outputContent = stream_get_contents($tmpFile);
-
-        $this->assertSame(14, mb_substr_count($outputContent, "\n"));
+        $this->assertSame(5, mb_substr_count($outputContent, "\n"));
     }
 }

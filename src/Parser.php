@@ -3,7 +3,6 @@
 namespace j4nr6n\ADIF;
 
 use j4nr6n\ADIF\Enum\ParserFlag;
-use j4nr6n\ADIF\Exception\ParseException;
 
 /**
  * @see https://adif.org/
@@ -12,8 +11,6 @@ class Parser
 {
     /**
      * @return array<array-key, array>
-     *
-     * @throws ParseException
      */
     public function parse(string $input): array
     {
@@ -27,23 +24,8 @@ class Parser
         return $data;
     }
 
-    /**
-     * @throws ParseException
-     */
     public function iterate(string $input): \Iterator
     {
-        $isFilePath = in_array(pathinfo($input, PATHINFO_EXTENSION), ['adi', 'adif']);
-
-        if ($isFilePath) {
-            if (!is_readable($input)) {
-                throw new ParseException(
-                    sprintf('Could not read "%s"! Please make sure the file exists and is readable.', $input)
-                );
-            }
-
-            $input = file_get_contents($input);
-        }
-
         // Trim leading or trailing white-space
         $input = trim($input);
 

@@ -2,8 +2,6 @@
 
 namespace j4nr6n\ADIF;
 
-use j4nr6n\ADIF\Exception\WriterException;
-
 /**
  * @see https://adif.org/
  */
@@ -29,17 +27,8 @@ class Writer
         return $this;
     }
 
-    /**
-     * @throws WriterException
-     */
-    public function write(string $filepath, array $records): void
+    public function write(array $records): string
     {
-        if (!is_writable(pathinfo($filepath)['dirname'] ?? '.')) {
-            throw new WriterException(
-                sprintf('Could not write to "%s"! Please make sure the path is writable.', $filepath)
-            );
-        }
-
         $data = $this->generateHeader();
 
         /** @var array $record */
@@ -52,14 +41,10 @@ class Writer
                 $data .= $this->stringifyField($key, $value);
             }
 
-            $data .= "<EOR>\n\n";
+            $data .= "<EOR>\n";
         }
 
-        if (file_put_contents($filepath, $data) === false) {
-            throw new WriterException(
-                sprintf('Could not write to "%s"! Please make sure the file is writable.', $filepath)
-            );
-        }
+        return $data;
     }
 
     private function generateHeader(): string
@@ -67,26 +52,26 @@ class Writer
         $header = '';
 
         // ADIF_VER
-        $header .= $this->stringifyField('ADIF_VER', '3.1.3');
+        $header .= $this->stringifyField('ADIF_VER', '3.1.3') . "\n";
 
         // CREATED_TIMESTAMP
-        $header .= $this->stringifyField('CREATED_TIMESTAMP', date('Ymd His'));
+        $header .= $this->stringifyField('CREATED_TIMESTAMP', date('Ymd His')) . "\n";
 
         // PROGRAMID
-        if ($this->programId) {
-            $header .= $this->stringifyField('PROGRAMID', $this->programId);
+        if ($this->programId !== null) {
+            $header .= $this->stringifyField('PROGRAMID', $this->programId) . "\n";
         }
 
         // PROGRAMVERSION
-        if ($this->programVersion) {
-            $header .= $this->stringifyField('PROGRAMVERSION', $this->programVersion);
+        if ($this->programVersion !== null) {
+            $header .= $this->stringifyField('PROGRAMVERSION', $this->programVersion) . "\n";
         }
 
-        return $header . "<EOH>\n\n";
+        return $header . "<EOH>\n";
     }
 
     private function stringifyField(string $key, ?string $value): string
     {
-        return sprintf("<%s:%d>%s\n", $key, (int) grapheme_strlen($value ?? ''), $value ?? '');
+        return sprintf("<%s:%d>%s", $key, (int) grapheme_strlen($value ?? ''), $value ?? '');
     }
 }
