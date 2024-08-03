@@ -52,7 +52,7 @@ class Writer
         $header = '';
 
         // ADIF_VER
-        $header .= $this->stringifyField('ADIF_VER', '3.1.3') . "\n";
+        $header .= $this->stringifyField('ADIF_VER', '3.1.4') . "\n";
 
         // CREATED_TIMESTAMP
         $header .= $this->stringifyField('CREATED_TIMESTAMP', date('Ymd His')) . "\n";
